@@ -46,7 +46,7 @@ geo_dict = haskey(loaded_geo, "geometry_dict") ? loaded_geo["geometry_dict"] : l
 
 version_tracker = Dict{String, Int}()
 
-for (β, h, J, ϵ, n_meas, n_sweep, n_therm) in IterTools.product(betas, hs, Jz, epsilons, nm_meas, nm_sweep, nm_therm)
+for (β, h, J, ϵ, n_meas, n_sweep, n_therm) in IterTools.product(betas, hs, Jz, epsilons, nm_meas, nm_sweep_factor, nm_therm)
     
     base_name_params = @sprintf("beta_%.2f_h_%.2f_eps_%.4f", β, h, ϵ)
     

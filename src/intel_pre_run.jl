@@ -48,7 +48,7 @@ version_tracker = Dict{String, Int}()
 
 # לולאה על כל הפרמטרים
 # הערה: n_sweep כאן הוא הפקטור (למשל 10) שמגיע מ-simulation_params
-for (β, h, J, ϵ, n_meas, n_sweep_factor, n_therm) in IterTools.product(betas, hs, Jz, epsilons, nm_meas, nm_sweep, nm_therm)
+for (β, h, J, ϵ, n_meas, n_sweep_factor, n_therm) in IterTools.product(betas, hs, Jz, epsilons, nm_meas, nm_sweep_factor, nm_therm)
     
     base_name_params = @sprintf("beta_%.2f_h_%.2f_eps_%.4f", β, h, ϵ)
     
