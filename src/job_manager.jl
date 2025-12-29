@@ -58,7 +58,7 @@ end
 # 4. הכנת הפקודה לשרת (Dynamic Server Configuration)
 # ==============================================================================
 # עדכן כאן את שם התיקייה בשרת שבה יושב הפרויקט הזה
-project_folder_name = "Z2_Gauge_Theory"
+project_folder_name = "CSS_spin_rep"
 
 if target_server == "intel"
     remote_host = "intel"
