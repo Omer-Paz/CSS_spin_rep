@@ -41,7 +41,7 @@ end
 function run_measurements!(meas::Measurements, conf::SimConfig, params::SimParams,output_dir::String, meas_filename::String)
     for i in 1:params.nm_meas
         for _ in 1:params.nm_sweep
-            metropolis_step!(conf, params)
+            sweep_move!(conf, params)
         end
         measure_all!(meas, conf)
         if i % 1000 == 0
