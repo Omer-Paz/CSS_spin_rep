@@ -137,13 +137,13 @@ function plot_compare_seq_vec(beta, h, eps_inv, path_seq, path_vec, exact_flux, 
     # גרף Flux
     p1 = plot(title="Flux Comparison (β=$beta, ε=1/$eps_inv)", ylabel="<Flux>", xlabel="Steps")
     plot!(p1, f_seq, label="Sequential", lw=2, alpha=0.8, color=:blue)
-    plot!(p1, f_vec, label="Vectorized", lw=2, alpha=0.8, linestyle=:dash, color=:orange)
+    plot!(p1, f_vec, label="Vectorized", lw=2, alpha=0.8, color=:red)
     hline!(p1, [exact_flux], label="ED Exact", color=:black, linestyle=:dot, lw=2)
     
     # גרף Correlation
     p2 = plot(title="Corr Comparison (β=$beta, ε=1/$eps_inv)", ylabel="<Corr>", xlabel="Steps")
     plot!(p2, c_seq, label="Sequential", lw=2, alpha=0.8, color=:blue)
-    plot!(p2, c_vec, label="Vectorized", lw=2, alpha=0.8, linestyle=:dash, color=:orange)
+    plot!(p2, c_vec, label="Vectorized", lw=2, alpha=0.8, color=:red)
     hline!(p2, [exact_corr], label="ED Exact", color=:black, linestyle=:dot, lw=2)
     
     p_final = plot(p1, p2, layout=(2,1), size=(800, 800), margin=5Plots.mm)
