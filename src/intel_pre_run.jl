@@ -1,9 +1,10 @@
 using Statistics, Dates, JLD2, FileIO, IterTools
 using Formatting, Printf
 
-run_file = joinpath(@__DIR__, "../Run.jl") # בהנחה ש-Run נמצא רמה אחת מעל src או באותה תיקייה
-# אם Run.jl נמצא יחד עם הקובץ הזה באותה תיקייה: joinpath(@__DIR__, "Run.jl")
+# --- שינוי 1: תיקון הנתיב ל-Run.jl (כמו ב-Landau) ---
+run_file = joinpath(@__DIR__, "Run.jl")
 
+# נתיב הג'וליה הספציפי של Intel (נשמר)
 julia_bin = "/homes/omerp/.juliaup/bin/julia"
 
 ######################### Generate slurm.txt #################################
@@ -22,33 +23,33 @@ templateSLURM = FormatExpr("""#!/bin/bash
 #SBATCH --mail-user=omer.paz2@mail.huji.ac.il
 
 export DIR={2}
-$julia_bin --threads 1 --check-bounds=no -O3 $run_file --sim_path=\$DIR
+$julia_bin --threads 1 --check-bounds=no -O3 $run_file --sim_path="\$DIR/sim.jld2"
 """)
 ###############################################################################
 
-# טעינת הפרמטרים שנוצרו ע"י job_manager
-include("../simulation_params.jl") 
+# --- שינוי 2: טעינת הפרמטרים מהתיקייה הנוכחית (src) ---
+include("simulation_params.jl") 
 
-# נתיב בסיס לשמירת התוצאות
-path = "/homes/omerp/sim_data/Z2_Gauge/" * geo_name
+# נתיב שמירת הנתונים ב-Intel (נשמר המיקום המקורי Z2_Gauge)
+path = "/homes/omerp/sim_data/CSS_spin_rep/" * geo_name
 
-# טעינת הגיאומטריה (Load Geometry Once)
-# הנחה: קבצי הגיאומטריה נמצאים בתיקיית geometries יחסית לסקריפט או בנתיב קבוע
-geo_file_path = joinpath(@__DIR__, "../geometries", geo_name * ".jld2")
+# --- שינוי 3: טעינת גיאומטריה מתיקיית graphs (במקום geometries) ---
+geo_file_path = joinpath(@__DIR__, "../graphs", geo_name * ".jld2")
+
 if !isfile(geo_file_path)
     error("Geometry file not found at: $geo_file_path")
 end
 loaded_geo = load(geo_file_path)
-# אם הקובץ מכיל מפתח ראשי, שלוף אותו. אם הוא המילון עצמו:
+# הוספת הבדיקה אם המילון מקונן (כמו ב-Landau)
 geo_dict = haskey(loaded_geo, "geometry_dict") ? loaded_geo["geometry_dict"] : loaded_geo
 
 # --- מעקב גרסאות ---
 version_tracker = Dict{String, Int}()
 
 # לולאה על כל הפרמטרים
-for (β, h, J, ϵ, n_meas, n_sweep, n_therm) in IterTools.product(betas, hs, Jz, epsilons, nm_meas, nm_sweep, nm_therm)
+# הערה: n_sweep כאן הוא הפקטור (למשל 10) שמגיע מ-simulation_params
+for (β, h, J, ϵ, n_meas, n_sweep_factor, n_therm) in IterTools.product(betas, hs, Jz, epsilons, nm_meas, nm_sweep, nm_therm)
     
-    # שם התיקייה הבסיסי
     base_name_params = @sprintf("beta_%.2f_h_%.2f_eps_%.4f", β, h, ϵ)
     
     # 1. לוגיקה למציאת גרסה
@@ -69,15 +70,17 @@ for (β, h, J, ϵ, n_meas, n_sweep, n_therm) in IterTools.product(betas, hs, Jz,
     c_path = joinpath(path, "$(base_name_params)_v$(version)")
     mkpath(c_path)
     
-    # הכנת המילון עבור Run.jl (חייב להתאים למפתחות ב-Run.jl)
+    # --- שינוי 4: חישוב מספר הצעדים הכולל לפי נפח המערכת ---
+    system_vol = geo_dict["N_vertices"] + geo_dict["N_edges"]
+    
     c_sim_data = Dict(
-        "geometry" => geo_dict, # שים לב: זה המפתח ש-Run.jl מחפש
+        "geometry" => geo_dict, 
         "beta"     => β,
         "h"        => h,
         "Jz"       => J,
         "epsilon"  => ϵ,
         "nm_meas"  => n_meas,
-        "nm_sweep" => n_sweep,
+        "nm_sweep" => system_vol * n_sweep_factor, # הכפלת הנפח בפקטור
         "nm_therm" => n_therm
     )
     
@@ -87,7 +90,7 @@ for (β, h, J, ϵ, n_meas, n_sweep, n_therm) in IterTools.product(betas, hs, Jz,
     
     # יצירת קובץ Slurm
     slurm_file_name = joinpath(c_path, "slurm.txt")
-    slurm_job_name = @sprintf("Z2_%s_b%.1f_h%.2f_v%d", geo_name, β, h, version)
+    slurm_job_name = @sprintf("CSS_%s_b%.1f_v%d", geo_name, β, version)
     
     open(slurm_file_name, "w") do slurm_file
         printfmt(slurm_file, templateSLURM, slurm_job_name, c_path, 1)

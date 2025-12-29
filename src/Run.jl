@@ -33,7 +33,7 @@ end
 function run_therm!(conf::SimConfig, params::SimParams)
     for i in 1:params.nm_therm
         for _=1:params.nm_sweep
-            sweep_move!(conf, params)
+            sweep_move_vectorized!(conf, params)
         end
     end
 end
@@ -41,7 +41,7 @@ end
 function run_measurements!(meas::Measurements, conf::SimConfig, params::SimParams,output_dir::String, meas_filename::String)
     for i in 1:params.nm_meas
         for _ in 1:params.nm_sweep
-            sweep_move!(conf, params)
+            sweep_move_vectorized!(conf, params)
         end
         measure_all!(meas, conf)
         if i % 1000 == 0
@@ -58,7 +58,8 @@ function save_meas(meas::Measurements, sim_path::String)
     M = Int(round(beta / epsilon))
     params = SimParams(beta, M, Jz, h, epsilon, nm_sweep, nm_therm, nm_meas)
     conf = SimConfig(geo_dict, params.M)
-    meas = init_measurements(params.nm_meas)
+    N_ver = length(conf.vert_to_edge)
+    meas = init_measurements(params.nm_meas,N_ver)
     @printf("Init: beta=%.1f, eps=1/%d (M=%d), h=%.2f\n", params.beta, Int(1/epsilon), params.M, params.h)
     stdout()
     return params, conf, meas
@@ -69,7 +70,8 @@ function initialize_simulation(beta, h, epsilon, Jz, nm_therm, nm_meas, nm_sweep
     M = Int(round(beta / epsilon))
     params = SimParams(beta, M, Jz, h, epsilon, nm_sweep, nm_therm, nm_meas)
     conf = SimConfig(geo_dict, params.M)
-    meas = init_measurements(params.nm_meas)    
+    N_vert = length(conf.vert_to_edge)
+    meas = init_measurements(params.nm_meas,N_vert)    
     @printf("Init: beta=%.1f, eps=1/%d (M=%d), h=%.2f\n", params.beta, Int(1/epsilon), params.M, params.h)
     stdout()
     return params, conf, meas
@@ -90,7 +92,8 @@ function initialize_new_run(sim_data::Dict)
     
     params = SimParams(beta, M, Jz, h, epsilon, nm_sweep, nm_therm, nm_meas)
     conf = SimConfig(geo_dict, params.M)
-    meas = init_measurements(params.nm_meas)
+    N_vert = length(conf.vert_to_edge)
+    meas = init_measurements(params.nm_meas,N_vert)
     
     @printf("✨ Init NEW run: beta=%.2f, M=%d, h=%.2f\n", beta, M, h)
     return params, conf, meas
@@ -106,7 +109,8 @@ function run_sim(sim_input_path::String)
         println("🔄 Found existing configuration. Resuming run...")
         loaded_conf = load(config_path, "config")
         loaded_params = load(params_path, "params")
-        meas = init_measurements(loaded_params.nm_meas)
+        N_vert = length(loaded_conf.vert_to_edge)
+        meas = init_measurements(loaded_params.nm_meas,N_vert)
         params = loaded_params
         conf = loaded_conf        
     else

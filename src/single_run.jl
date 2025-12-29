@@ -20,7 +20,8 @@ function initialize_simulation(beta, h, epsilon, Jz, nm_therm, nm_meas, nm_sweep
     M = Int(round(beta / epsilon))
     params = SimParams(beta, M, Jz, h, epsilon, nm_sweep, nm_therm, nm_meas)
     conf = SimConfig(geo_dict, params.M)
-    meas = init_measurements(params.nm_meas)
+    N_vert = length(conf.vert_to_edge)
+    meas = init_measurements(params.nm_meas,N_vert)
     
     # הדפסה קצרה יותר כדי לא להציף את הלוג בריצה ארוכה
     @printf("Init: beta=%.1f, eps=1/%d (M=%d), h=%.2f\n", params.beta, Int(1/epsilon), params.M, params.h)
@@ -30,7 +31,10 @@ end
 function run_thermalization!(conf::SimConfig, params::SimParams)
     println("  Thermalizing...") 
     for _ in 1:params.nm_therm
-        sweep_move!(conf, params)
+        for _ in 1:params.nm_sweep
+            #sweep_move!(conf, params)
+            sweep_move_vectorized!(conf,params)
+        end
     end
 end
 
@@ -38,8 +42,8 @@ function run_measurement_loop!(meas::Measurements, conf::SimConfig, params::SimP
     println("  Measuring...")
     for i in 1:params.nm_meas
         for _ in 1:params.nm_sweep
-            sweep_move!(conf, params)
-            #sweep_move_vectorized!(conf,params)
+            #sweep_move!(conf, params)
+            sweep_move_vectorized!(conf,params)
         end
         measure_all!(meas, conf)
     end
@@ -56,18 +60,17 @@ end
 
 function main()
     # === הגדרת פרמטרים לסריקה ===
-    betas = [2.0]
-    epsilons = [1/16]
-    hs = [0.5]#collect(0.1:0.1:1.0)
-    
+    betas = [16.0]
+    epsilons = [1/8,1/16,1/32,1/64]
+    hs = [0.3,0.4,0.6,0.7,0.8,0.9,1.0] #[0.5]#collect(0.1:0.1:1.0)
     Jz = 1.0
     nm_therm = 2^10
-    nm_meas = 2^13
-    nm_sweep = 400
+    nm_meas = 2^16
+    nm_sweep = 30
     
     # === הגדרת נתיבים ===
-    geo_path = joinpath(dirname(@__DIR__),"graphs", "psl_2_4.jld2")
-    output_dir = dirname(@__DIR__)#"/Users/omerp/CSS_spin_rep/ED/two_cubes"
+    geo_path = joinpath(dirname(@__DIR__),"graphs", "two_cubes.jld2")
+    output_dir = "/Users/omerp/CSS_spin_rep/ED/two_cubes"
     
     # יצירת התיקייה אם אינה קיימת
     mkpath(output_dir)
@@ -90,7 +93,7 @@ function main()
                 run_thermalization!(conf, params)    
                 run_measurement_loop!(meas, conf, params)    
                 analyze_results(meas)
-                filename = @sprintf("res_beta_%.1f_eps_inv_%d_h_%.2f_4.jld2", beta, Int(round(1/epsilon)), h)
+                filename = @sprintf("res_beta_%.1f_eps_inv_%d_h_%.2f_4_vectorized.jld2", beta, Int(round(1/epsilon)), h)
                 save_path = joinpath(output_dir, filename)
                 save(save_path, Dict("measurements" => meas, "params" => params))
             end

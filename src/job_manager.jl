@@ -11,15 +11,15 @@ target_server = "landau"  # אפשרויות: "intel" או "landau"
 # שם קובץ הגיאומטריה (ללא סיומת) שנמצא בתיקיית geometries
 geo_name = "psl_2_4" 
 
-betas = [2.0] 
-hs = [0.5] 
+betas = [2.0,4.0,8.0,16.0] 
+hs = collect(0.1:0.1:1.0)
 Jz = [1.0]
 
-epsilons = [1/8] # דיסקרטיזציה של הזמן
+epsilons = [1/8,1/16,1/32,1/64] # דיסקרטיזציה של הזמן
 
 # הגדרות ריצה
-nm_meas = [1]    # מספר מדידות
-nm_sweep = [1]     # כמה צעדים בין מדידה למדידה
+nm_meas = [2^13]    # מספר מדידות
+nm_sweep_factor = [1]     # כמה צעדים בין מדידה למדידה
 nm_therm = [1]   # צעדי תרמליזציה
 
 # תוכן הקובץ שייכתב וישלח לשרת
@@ -31,7 +31,7 @@ hs = $hs
 Jz = $Jz
 epsilons = $epsilons
 nm_meas = $nm_meas
-nm_sweep = $nm_sweep
+nm_sweep_factor = $nm_sweep_factor
 nm_therm = $nm_therm
 """
 

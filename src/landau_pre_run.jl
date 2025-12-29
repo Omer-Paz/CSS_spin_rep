@@ -66,7 +66,7 @@ for (β, h, J, ϵ, n_meas, n_sweep, n_therm) in IterTools.product(betas, hs, Jz,
 
     c_path = joinpath(path, "$(base_name_params)_v$(version)")
     mkpath(c_path)
-    
+    n_sweep = geo_dict["N_vertices"] + geo_dict["N_edges"]
     # שמירת נתוני ההרצה
     c_sim_data = Dict(
         "geometry" => geo_dict, 
@@ -75,7 +75,7 @@ for (β, h, J, ϵ, n_meas, n_sweep, n_therm) in IterTools.product(betas, hs, Jz,
         "Jz"       => J,
         "epsilon"  => ϵ,
         "nm_meas"  => n_meas,
-        "nm_sweep" => n_sweep,
+        "nm_sweep" => n_sweep * nm_sweep_factor,
         "nm_therm" => n_therm
     )
     
