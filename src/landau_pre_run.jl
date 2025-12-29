@@ -1,7 +1,10 @@
 using Statistics, Dates, JLD2, FileIO, IterTools
 using Formatting, Printf
 
-run_file = joinpath(@__DIR__, "../Run.jl")
+# --- תיקון 1: אם Run.jl נמצא גם הוא ב-src, תוריד את ה-"../" ---
+# אם הוא נמצא מחוץ ל-src, תחזיר את "../Run.jl"
+run_file = joinpath(@__DIR__, "Run.jl")
+
 julia_bin = "/usr/people/snirgaz/omerp/.juliaup/bin/julia"
 
 ######################### Generate slurm.txt #################################
@@ -21,18 +24,20 @@ templateSLURM = FormatExpr("""#!/bin/bash
 #SBATCH --mail-type=end
 
 export DIR={2}
-# השינוי: אנו מצביעים לקובץ sim.jld2 ספציפית
 $julia_bin --threads 1 --check-bounds=no -O3 $run_file --sim_path="\$DIR/sim.jld2"
 """)
 ###############################################################################
 
-include("../simulation_params.jl") 
+# --- תיקון 2: הקובץ נמצא באותה תיקייה (src) ---
+include("simulation_params.jl") 
 
-# נתיב דאטה
+# נתיב דאטה (וודא שזה הנתיב הנכון בשרת)
 path = "/usr/people/snirgaz/omerp/data/sim_data/CSS_spin_rep/" * geo_name
 
-# טעינת גיאומטריה מהתיקייה היחסית בשרת (../graphs)
+# טעינת גיאומטריה מהתיקייה היחסית בשרת
+# הנחה: תיקיית graphs נמצאת במקביל לתיקיית src
 geo_file_path = joinpath(@__DIR__, "../graphs", geo_name * ".jld2")
+
 if !isfile(geo_file_path)
     error("Geometry file not found at: $geo_file_path")
 end

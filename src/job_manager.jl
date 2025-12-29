@@ -43,18 +43,22 @@ current_script_path = @__FILE__
 
 write(params_path, params_content)
 println("✅ Updated parameters file: $params_path")
-println("🚀 Pushing to Git...")
-
+# ...
+println("🚀 Pushing code to Git...")
 try
+    # הוספת קובץ הפרמטרים
     run(`git add $params_path`)
-    run(`git add $current_script_path`)
-    run(`git commit -m "Auto-update params for Z2 Gauge: $target_server"`)
+    
+    # הוספת כל הקבצים בתיקיית src (כולל landau_pre_run.jl המתוקן)
+    src_dir = joinpath(@__DIR__, "src")
+    run(`git add $src_dir`)
+    
+    run(`git commit -m "Auto-update params and source code"`)
     run(`git push origin main`) 
 catch e
-    println("⚠️ Git warning (might be nothing to commit): ", e)
+    println("⚠️ Git warning: ", e)
 end
-
-# ==============================================================================
+# ...# ==============================================================================
 # 4. הכנת הפקודה לשרת (Dynamic Server Configuration)
 # ==============================================================================
 # עדכן כאן את שם התיקייה בשרת שבה יושב הפרויקט הזה
