@@ -14,7 +14,7 @@ templateSLURM = FormatExpr("""#!/bin/bash
 #SBATCH --error={2}/%A_%a.error
 #SBATCH -c 1
 #SBATCH --threads-per-core=1
-#SBATCH --mem-per-cpu=4GB
+#SBATCH --mem-per-cpu=2GB
 #SBATCH --requeue
 #SBATCH --time=168:00:00
 #SBATCH --qos=normal
