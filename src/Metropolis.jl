@@ -162,3 +162,8 @@ function spatial_sweep_vectorized!(conf::SimConfig, params::SimParams)
         end
     end
 end
+
+function sweep_move_vectorized!(conf::SimConfig, params::SimParams)
+    temporal_sweep_vectorized!(conf,params)
+    spatial_sweep_vectorized!(conf,params)
+end

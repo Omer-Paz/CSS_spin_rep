@@ -39,6 +39,7 @@ function run_measurement_loop!(meas::Measurements, conf::SimConfig, params::SimP
     for i in 1:params.nm_meas
         for _ in 1:params.nm_sweep
             sweep_move!(conf, params)
+            #sweep_move_vectorized!(conf,params)
         end
         measure_all!(meas, conf)
     end
@@ -61,7 +62,7 @@ function main()
     
     Jz = 1.0
     nm_therm = 2^10
-    nm_meas = 2^15
+    nm_meas = 2^13
     nm_sweep = 400
     
     # === הגדרת נתיבים ===
