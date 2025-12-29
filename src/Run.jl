@@ -46,25 +46,13 @@ function run_measurements!(meas::Measurements, conf::SimConfig, params::SimParam
         measure_all!(meas, conf)
         if i % 1000 == 0
             @printf("[Checkpoint] %d/%d measurements saved.\n", i, params.nm_meas)
-            stdout()
+            flush(stdout)
             save_checkpoint(output_dir, meas, conf, params, meas_filename)
         end
     end
     save_checkpoint(output_dir, meas, conf, params, meas_filename)
     println("✅ Finished measurements. Saved to $meas_filename")
 end
-
-function save_meas(meas::Measurements, sim_path::String)
-    M = Int(round(beta / epsilon))
-    params = SimParams(beta, M, Jz, h, epsilon, nm_sweep, nm_therm, nm_meas)
-    conf = SimConfig(geo_dict, params.M)
-    N_ver = length(conf.vert_to_edge)
-    meas = init_measurements(params.nm_meas,N_ver)
-    @printf("Init: beta=%.1f, eps=1/%d (M=%d), h=%.2f\n", params.beta, Int(1/epsilon), params.M, params.h)
-    stdout()
-    return params, conf, meas
-end
-
 
 function initialize_simulation(beta, h, epsilon, Jz, nm_therm, nm_meas, nm_sweep, geo_dict)
     M = Int(round(beta / epsilon))
@@ -73,7 +61,7 @@ function initialize_simulation(beta, h, epsilon, Jz, nm_therm, nm_meas, nm_sweep
     N_vert = length(conf.vert_to_edge)
     meas = init_measurements(params.nm_meas,N_vert)    
     @printf("Init: beta=%.1f, eps=1/%d (M=%d), h=%.2f\n", params.beta, Int(1/epsilon), params.M, params.h)
-    stdout()
+    flush(stdout)
     return params, conf, meas
 end
 
