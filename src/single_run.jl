@@ -6,7 +6,7 @@ include("Config.jl")
 include("Measurements.jl") 
 include("Params.jl") 
 include("Metropolis.jl") 
-
+include("Swendsen_Wang.jl")
 function load_geometry(path::String)
     if !isfile(path)
         error("Geometry file not found at: $path")
@@ -43,8 +43,10 @@ function run_measurement_loop!(meas::Measurements, conf::SimConfig, params::SimP
     for i in 1:params.nm_meas
         for _ in 1:params.nm_sweep
             #sweep_move!(conf, params)
-            sweep_move_vectorized!(conf,params)
+            #sweep_move_vectorized!(conf,params)
+            run_swendsen_wang_step!(conf,params)
         end
+        print("\r Now at move $i")
         measure_all!(meas, conf)
     end
 end
@@ -61,11 +63,11 @@ end
 function main()
     # === הגדרת פרמטרים לסריקה ===
     betas = [16.0]
-    epsilons = [1/8,1/16,1/32,1/64]
-    hs = [0.3,0.4,0.6,0.7,0.8,0.9,1.0] #[0.5]#collect(0.1:0.1:1.0)
+    epsilons = [1/32]
+    hs = [0.5] #[0.5]#collect(0.1:0.1:1.0)
     Jz = 1.0
     nm_therm = 2^10
-    nm_meas = 2^16
+    nm_meas = 2^10
     nm_sweep = 30
     
     # === הגדרת נתיבים ===
@@ -93,7 +95,7 @@ function main()
                 run_thermalization!(conf, params)    
                 run_measurement_loop!(meas, conf, params)    
                 analyze_results(meas)
-                filename = @sprintf("res_beta_%.1f_eps_inv_%d_h_%.2f_4_vectorized.jld2", beta, Int(round(1/epsilon)), h)
+                filename = @sprintf("res_beta_%.1f_eps_inv_%d_h_%.2f_4_sw.jld2", beta, Int(round(1/epsilon)), h)
                 save_path = joinpath(output_dir, filename)
                 save(save_path, Dict("measurements" => meas, "params" => params))
             end
