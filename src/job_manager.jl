@@ -12,7 +12,7 @@ target_server = "landau"  # אפשרויות: "intel" או "landau"
 geo_name = "psl_2_4" 
 
 betas = [2.0,4.0,8.0,16.0] 
-hs = collect(0.1:0.1:1.0)
+hs = collect(0.8:0.01:0.9)
 Jz = [1.0,1.0]
 
 epsilons = [1/8,1/16,1/32] # דיסקרטיזציה של הזמן
