@@ -90,7 +90,7 @@ for (β, h, J, ϵ, n_meas, n_sweep_factor, n_therm) in IterTools.product(betas, 
     
     # יצירת קובץ Slurm
     slurm_file_name = joinpath(c_path, "slurm.txt")
-    slurm_job_name = @sprintf("CSS_%s_b%.1f_v%d", geo_folder,geo_name, β, version)
+    slurm_job_name = @sprintf("CSS_%s_%s_b%.1f_v%d", geo_folder,geo_name, β, version)
     
     open(slurm_file_name, "w") do slurm_file
         printfmt(slurm_file, templateSLURM, slurm_job_name, c_path, 1)
