@@ -3,13 +3,14 @@ using Dates
 # ==============================================================================
 # 1. הגדרות שרת (Server Selection)
 # ==============================================================================
-target_server = "landau"  # אפשרויות: "intel" או "landau"
+target_server = "intel"  # אפשרויות: "intel" או "landau"
 
 # ==============================================================================
 # 2. הגדרת פרמטרים לסימולציה
 # ==============================================================================
 # שם קובץ הגיאומטריה (ללא סיומת) שנמצא בתיקיית geometries
 geo_name = "psl_2_4" 
+geo_folder = "HGP"
 
 betas = [2.0,4.0,8.0,16.0] 
 hs = collect(0.8:0.01:0.9)
@@ -25,6 +26,7 @@ nm_therm = [2^10]   # צעדי תרמליזציה
 # תוכן הקובץ שייכתב וישלח לשרת
 params_content = """
 # Auto-generated parameters file for Z2 Gauge Theory
+geo_folder = "$geo_folder"
 geo_name = "$geo_name"
 betas = $betas
 hs = $hs
@@ -52,7 +54,6 @@ try
     # הוספת כל הקבצים בתיקיית src (כולל landau_pre_run.jl המתוקן)
     src_dir = joinpath(@__DIR__, "src")
     run(`git add $src_dir`)
-    
     run(`git commit -m "Auto-update params and source code"`)
     run(`git push origin main`) 
 catch e

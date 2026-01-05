@@ -31,10 +31,10 @@ $julia_bin --threads 1 --check-bounds=no -O3 $run_file --sim_path="\$DIR/sim.jld
 include("simulation_params.jl") 
 
 # נתיב שמירת הנתונים ב-Intel (נשמר המיקום המקורי Z2_Gauge)
-path = "/homes/omerp/sim_data/CSS_spin_rep/" * geo_name
+path = joinpath("/homes/omerp/sim_data/CSS_spin_rep/", geo_folder, geo_name)
 
 # --- שינוי 3: טעינת גיאומטריה מתיקיית graphs (במקום geometries) ---
-geo_file_path = joinpath(@__DIR__, "../graphs", geo_name * ".jld2")
+geo_file_path = joinpath(@__DIR__, "..",geo_folder, geo_name * ".jld2")
 
 if !isfile(geo_file_path)
     error("Geometry file not found at: $geo_file_path")
@@ -90,12 +90,12 @@ for (β, h, J, ϵ, n_meas, n_sweep_factor, n_therm) in IterTools.product(betas, 
     
     # יצירת קובץ Slurm
     slurm_file_name = joinpath(c_path, "slurm.txt")
-    slurm_job_name = @sprintf("CSS_%s_b%.1f_v%d", geo_name, β, version)
+    slurm_job_name = @sprintf("CSS_%s_b%.1f_v%d", geo_folder,geo_name, β, version)
     
     open(slurm_file_name, "w") do slurm_file
         printfmt(slurm_file, templateSLURM, slurm_job_name, c_path, 1)
     end
 
-    println("🚀 Submitting job: $slurm_job_name")
+    println("🚀 Submitting job: $slurm_job_name (Folder: $geo_folder)")
     run(`sbatch $slurm_file_name`)
 end

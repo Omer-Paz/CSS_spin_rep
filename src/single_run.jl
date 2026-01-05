@@ -71,7 +71,7 @@ function main()
     nm_sweep = 30
     
     # === הגדרת נתיבים ===
-    geo_path = joinpath(dirname(@__DIR__),"graphs", "two_cubes.jld2")
+    geo_path = joinpath(dirname(@__DIR__),"HGP", "HGP_test.jld2")
     output_dir = "/Users/omerp/CSS_spin_rep/ED/two_cubes"
     
     # יצירת התיקייה אם אינה קיימת

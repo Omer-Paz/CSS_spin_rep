@@ -1,11 +1,12 @@
-mutable struct SimConfig
+mutable struct SimConfig{T_ETV}
     # == State (Dynamic) ==
     ising_config_G::Matrix{Int8}    # Size: (N_edges, M)
     ising_config_tau::Matrix{Int8}  # Size: (N_vertices, M)
     F_G::Matrix{Int8}     # Spatial Fluxes (Plaquettes). Size: (N_fluxes, M)
     F_tau::Matrix{Int8}   # Temporal Fluxes. Size: (N_edges, M) 
     # == Geometry (Static - Loaded from JLD2) ==
-    edge_to_vert::Vector{Tuple{Int, Int}}  
+    #edge_to_vert::Vector{Tuple{Int, Int}}  
+    edge_to_vert::T_ETV
     edge_to_flux::Vector{Vector{Int}}      
     flux_to_edge::Vector{Vector{Int}}     
     vert_to_edge::Vector{Vector{Int}} 
@@ -27,7 +28,8 @@ mutable struct SimConfig
         temp_randoms = zeros(Float64, M)
         G_dEs = zeros(Float64, M)
         G_randoms = zeros(Float64, M)
-        new(config_G, config_tau, flux_G, flux_tau,
+        etv = geometry_dict["edge_to_vert"]
+        new{typeof(etv)}(config_G, config_tau, flux_G, flux_tau,
             geometry_dict["edge_to_vert"],
             geometry_dict["edge_to_flux"],
             geometry_dict["flux_to_edge"],
