@@ -34,7 +34,7 @@ include("simulation_params.jl")
 path = joinpath("/homes/omerp/sim_data/CSS_spin_rep/", geo_folder, geo_name)
 
 # --- שינוי 3: טעינת גיאומטריה מתיקיית graphs (במקום geometries) ---
-geo_file_path = joinpath(dirname(@__DIR__,)geo_folder, geo_name * ".jld2")
+geo_file_path = joinpath(dirname(@__DIR__),geo_folder, geo_name * ".jld2")
 @show geo_file_path
 if !isfile(geo_file_path)
     error("Geometry file not found at: $geo_file_path")
